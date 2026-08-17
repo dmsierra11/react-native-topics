@@ -5,9 +5,21 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
+import Animated, {
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { colors } from '../theme';
+
+const GOAL = 10000;
+const FILL_MS = 4000;
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 type Walk = {
   id: string;
@@ -41,16 +53,17 @@ type Props = {
 };
 
 export function DailyGoalScreen({ onBack }: Props) {
-  const [progress, setProgress] = useState(0);
+  const progress = useSharedValue(0);
   const [now, setNow] = useState(Date.now());
   const [walks, setWalks] = useState<Walk[]>([]);
 
   useEffect(() => {
-    const tick = setInterval(() => {
-      setNow(Date.now());
-      setProgress((p) => Math.min(p + 80, 10000));
-    }, 32);
-    return () => clearInterval(tick);
+    progress.value = withTiming(GOAL, { duration: FILL_MS });
+  }, [progress]);
+
+  useEffect(() => {
+    const clock = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(clock);
   }, []);
 
   useEffect(() => {
@@ -60,8 +73,19 @@ export function DailyGoalScreen({ onBack }: Props) {
     });
   }, []);
 
-  const remaining = 10000 - progress;
-  const pct = Math.min(100, (progress / 10000) * 100);
+  const fillStyle = useAnimatedStyle(() => ({
+    width: `${(progress.value / GOAL) * 100}%`,
+  }));
+
+  const stepsProps = useAnimatedProps(() => ({
+    text: `${Math.round(progress.value)} steps`,
+    defaultValue: '0 steps',
+  }));
+
+  const remainingProps = useAnimatedProps(() => ({
+    text: `${Math.round(GOAL - progress.value)} to go`,
+    defaultValue: `${GOAL} to go`,
+  }));
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -85,17 +109,23 @@ export function DailyGoalScreen({ onBack }: Props) {
         {new Date(now).toLocaleTimeString()}
       </Text>
 
-      <Text style={styles.steps}>{Math.round(progress).toLocaleString()} steps</Text>
-      <Text style={styles.muted}>{remaining.toLocaleString()} to go</Text>
+      <AnimatedTextInput
+        animatedProps={stepsProps}
+        editable={false}
+        pointerEvents="none"
+        underlineColorAndroid="transparent"
+        style={styles.steps}
+      />
+      <AnimatedTextInput
+        animatedProps={remainingProps}
+        editable={false}
+        pointerEvents="none"
+        underlineColorAndroid="transparent"
+        style={styles.muted}
+      />
 
       <View style={{ height: 10, backgroundColor: colors.line, marginTop: 16 }}>
-        <View
-          style={{
-            height: 10,
-            width: `${pct}%`,
-            backgroundColor: colors.phosphor,
-          }}
-        />
+        <Animated.View style={[styles.fill, fillStyle]} />
       </View>
 
       <Pressable
@@ -181,11 +211,17 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '700',
     marginTop: 20,
+    padding: 0,
     fontVariant: ['tabular-nums'],
   },
   muted: {
     color: colors.muted,
     marginTop: 6,
+    padding: 0,
+  },
+  fill: {
+    height: 10,
+    backgroundColor: colors.phosphor,
   },
   claim: {
     color: colors.bg,
