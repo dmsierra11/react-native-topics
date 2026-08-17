@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import type { ScreenId } from './src/scenarios';
+import { DailyGoalScreen } from './src/review/DailyGoalScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { UnnecessaryRendersScreen } from './src/screens/UnnecessaryRendersScreen';
 
@@ -11,7 +12,9 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      {screen === 'unnecessary-renders' ? (
+      {screen === 'code-review' ? (
+        <DailyGoalScreen onBack={() => setScreen('home')} />
+      ) : screen === 'unnecessary-renders' ? (
         <UnnecessaryRendersScreen onBack={() => setScreen('home')} />
       ) : (
         <HomeScreen onOpen={(id) => setScreen(id)} />

@@ -15,8 +15,8 @@ export function HomeScreen({ onOpen }: Props) {
       <Text style={styles.kicker}>Performance lab</Text>
       <Text style={styles.title}>React Native scenarios</Text>
       <Text style={styles.lede}>
-        Each topic is a live demo. Start with unnecessary renders — the rest
-        unlock as we go.
+        Start with the code review exercise. Open the screen, then read the
+        file like a PR.
       </Text>
 
       <View style={styles.list}>
