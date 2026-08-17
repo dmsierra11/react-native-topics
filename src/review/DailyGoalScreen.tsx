@@ -76,10 +76,17 @@ export function DailyGoalScreen({ onBack }: Props) {
   }, [progress]);
 
   useEffect(() => {
+    let ignore = false;
+
     loadWalks().then((data) => {
+      if (ignore) return;
       console.log('session', { email: USER.email, token: USER.token });
       setWalks(data);
     });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const fillStyle = useAnimatedStyle(() => ({
