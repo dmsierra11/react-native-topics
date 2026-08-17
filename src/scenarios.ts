@@ -1,5 +1,11 @@
 export const SCENARIOS = [
   {
+    id: 'code-review',
+    title: 'Code review exercise',
+    subtitle: 'Daily goal screen — review this like a PR',
+    enabled: true,
+  },
+  {
     id: 'unnecessary-renders',
     title: 'Unnecessary React renders',
     subtitle: 'Parent state re-renders children that do not use it',
