@@ -52,19 +52,28 @@ type Props = {
   onBack: () => void;
 };
 
-export function DailyGoalScreen({ onBack }: Props) {
-  const progress = useSharedValue(0);
+function Clock() {
   const [now, setNow] = useState(Date.now());
-  const [walks, setWalks] = useState<Walk[]>([]);
-
-  useEffect(() => {
-    progress.value = withTiming(GOAL, { duration: FILL_MS });
-  }, [progress]);
 
   useEffect(() => {
     const clock = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(clock);
   }, []);
+
+  return (
+    <Text style={styles.clock}>
+      {new Date(now).toLocaleTimeString()}
+    </Text>
+  );
+}
+
+export function DailyGoalScreen({ onBack }: Props) {
+  const progress = useSharedValue(0);
+  const [walks, setWalks] = useState<Walk[]>([]);
+
+  useEffect(() => {
+    progress.value = withTiming(GOAL, { duration: FILL_MS });
+  }, [progress]);
 
   useEffect(() => {
     loadWalks().then((data) => {
@@ -105,9 +114,7 @@ export function DailyGoalScreen({ onBack }: Props) {
         />
       </View>
 
-      <Text style={styles.clock}>
-        {new Date(now).toLocaleTimeString()}
-      </Text>
+      <Clock />
 
       <AnimatedTextInput
         animatedProps={stepsProps}
